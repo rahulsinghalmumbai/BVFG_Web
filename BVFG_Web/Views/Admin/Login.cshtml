@@ -1,0 +1,151 @@
+﻿@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In</title>
+
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #3a9bdc, #4c2fbf);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            width: 350px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+        }
+
+            .login-card .icon {
+                font-size: 48px;
+                margin-bottom: 10px;
+            }
+
+            .login-card h2 {
+                margin-bottom: 30px;
+                font-weight: 500;
+            }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+            .form-group input {
+                width: 100%;
+                padding: 12px 40px 12px 40px;
+                border: none;
+                border-bottom: 1px solid #fff;
+                background: transparent;
+                color: #fff;
+                font-size: 16px;
+            }
+
+                .form-group input::placeholder {
+                    color: #ccc;
+                }
+
+            .form-group i {
+                position: absolute;
+                left: 10px;
+                top: 12px;
+                color: #fff;
+            }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin: 10px 0 20px;
+        }
+
+            .form-options label, .form-options a {
+                color: #ddd;
+                text-decoration: none;
+            }
+
+                .form-options a:hover {
+                    text-decoration: underline;
+                }
+
+        .btn-login {
+            background: transparent;
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            .btn-login:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+        .register {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+            .register a {
+                color: #fff;
+                text-decoration: underline;
+            }
+    </style>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="login-card">
+        <div class="icon">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <h2>Sign in</h2>
+
+        <form method="post" action="/YourController/Login">
+            <div class="form-group">
+                <i class="fas fa-user"></i>
+                <input name="username" type="text" placeholder="Username" required />
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-lock"></i>
+                <input name="password" type="password" placeholder="Password" required />
+            </div>
+
+            <div class="form-options">
+                <label>
+                    <input name="remember" type="checkbox" /> Remember me
+                </label>
+                <a href="/YourController/ForgotPassword">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
+        <div class="register">
+            Don’t have an account? <a href="/YourController/Register">Register now</a>
+        </div>
+    </div>
+</body>
+</html>

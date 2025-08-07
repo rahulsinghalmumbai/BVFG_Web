@@ -1,0 +1,119 @@
+﻿@model IEnumerable<BVFG_Web.Models.AdminModel.Admin>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MemberID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.City)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Mobile1)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Mobile2)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Mobile3)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Telephone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email1)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email2)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email3)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CompAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CompCity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DOB)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.City)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Mobile1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Mobile2)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Mobile3)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Telephone)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email2)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email3)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Company)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CompAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CompCity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DOB)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id=item.MemberID }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.MemberID }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.MemberID })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
