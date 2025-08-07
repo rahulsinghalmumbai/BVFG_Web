@@ -88,6 +88,41 @@ namespace BVFG_Web.Services.AdminService
             return response;
         }
 
+        public async Task<ResponseModle> ApprovedChanges(AdminApprovedDto approve)
+        {
+            ResponseModle response = new ResponseModle();
+            try
+            {
+
+                var json = JsonConvert.SerializeObject(approve);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var url = $"{Endpoints.ApprovedData}";
+                var result = await _httpClient.PostAsync(url, content);
+
+                var responseString = await result.Content.ReadAsStringAsync();
+                if (result.IsSuccessStatusCode)
+                {
+                    response = JsonConvert.DeserializeObject<ResponseModle>(responseString);
+                }
+                else
+                {
+                    response.Status = "Failed";
+                    response.Message = $"API Error: {result.StatusCode}";
+                    response.Data = null;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.Status = "Failed";
+                response.Message = ex.Message;
+                response.Data = null;
+            }
+
+            return response;
+
+        }
+
         public async Task<ResponseModle> GetAllMember()
         {
             ResponseModle response = new ResponseModle();

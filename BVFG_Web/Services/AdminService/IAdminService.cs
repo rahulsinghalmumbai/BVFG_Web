@@ -9,5 +9,6 @@ namespace BVFG_Web.Services.AdminService
         Task<ResponseModle> AddMember(Admin member);
         Task<ResponseModle> GetAllMember();
         Task<ResponseModle> GetMemberById(long  id);
+        Task<ResponseModle> ApprovedChanges(AdminApprovedDto approve);
     }
 }

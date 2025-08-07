@@ -55,21 +55,6 @@
             <p>@(ViewBag.ErrorMessage ?? "No member changes data available")</p>
         </div>
     </div>
-
-    <div class="pagination-container">
-        <div class="pagination-info" id="paginationInfo"></div>
-        <div class="pagination-controls">
-            <button class="btn btn-secondary" id="prevPage" disabled>
-                <i class="fas fa-chevron-left"></i> Previous
-            </button>
-            <div class="page-numbers" id="pageNumbers">
-                <span id="currentPageNumber">1</span>
-            </div>
-            <button class="btn btn-secondary" id="nextPage">
-                Next <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-    </div>
 </div>
 
 <style>
@@ -82,8 +67,6 @@
         margin-top: 20px;
         min-height: calc(100vh - 200px);
     }
-
-  
 
     .header-content {
         display: flex;
@@ -229,8 +212,6 @@
         background-color: #f7fafc;
     }
 
-   
-
     .old-value {
         color: #c53030;
     }
@@ -251,7 +232,7 @@
     }
 
     .action-btn {
-        width: 32px;
+        min-width: 80px;
         height: 32px;
         border-radius: 6px;
         display: flex;
@@ -261,6 +242,8 @@
         border: 1px solid #e2e8f0;
         cursor: pointer;
         transition: all 0.3s ease;
+        font-size: 12px;
+        padding: 0 10px;
     }
 
         .action-btn:hover {
@@ -270,6 +253,16 @@
         .action-btn.info {
             color: #3182ce;
             border-color: #3182ce;
+        }
+
+        .action-btn.approve {
+            color: #276749;
+            border-color: #276749;
+        }
+
+        .action-btn.reject {
+            color: #c53030;
+            border-color: #c53030;
         }
 
     /* No Records */
@@ -299,69 +292,11 @@
         font-size: 16px;
     }
 
-    /* Pagination */
-    .pagination-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 20px;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-
-    .pagination-info {
-        color: #718096;
-        font-size: 14px;
-    }
-
-    .pagination-controls {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .page-numbers {
-        display: flex;
-        gap: 5px;
-    }
-
-    #currentPageNumber {
-        padding: 8px 15px;
-        font-weight: 500;
-    }
-
-    .page-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: white;
-        border: 2px solid #e2e8f0;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-weight: 500;
-    }
-
-        .page-btn:hover {
-            border-color: #00BCD4;
-            color: #00BCD4;
-        }
-
-        .page-btn.active {
-            background: #00BCD4;
-            color: white;
-            border-color: #00BCD4;
-        }
-
     /* Responsive Design */
     @@media (max-width: 768px) {
         .history-container {
             padding: 20px 15px;
         }
-
-    
 
         .header-content {
             flex-direction: column;
@@ -384,11 +319,10 @@
             font-size: 13px;
         }
 
-        
-
-        .pagination-container {
-            flex-direction: column;
-            align-items: center;
+        .action-btn {
+            min-width: 70px;
+            font-size: 11px;
+            padding: 0 8px;
         }
     }
 
@@ -401,6 +335,12 @@
             .history-table td {
                 padding: 8px 6px;
             }
+
+        .action-btn {
+            min-width: 60px;
+            height: 28px;
+            font-size: 10px;
+        }
     }
 </style>
 
@@ -414,14 +354,8 @@
         const noRecords = document.getElementById('noRecords');
         const searchInput = document.getElementById('searchInput');
         const resetFilters = document.getElementById('resetFilters');
-        const paginationInfo = document.getElementById('paginationInfo');
-        const prevPage = document.getElementById('prevPage');
-        const nextPage = document.getElementById('nextPage');
-        const currentPageNumber = document.getElementById('currentPageNumber');
 
         // Variables
-        let currentPage = 1;
-        const rowsPerPage = 5; // Changed to show 5 records per page
         let filteredData = [...historyData];
         let sortColumn = '';
         let sortDirection = 'asc';
@@ -430,7 +364,6 @@
         function initPage() {
             if (historyData && historyData.length > 0) {
                 renderTable();
-                renderPagination();
                 attachSortListeners();
             } else {
                 showNoRecords();
@@ -457,9 +390,7 @@
                     this.classList.add('sort-' + sortDirection);
 
                     sortData();
-                    currentPage = 1;
                     renderTable();
-                    renderPagination();
                 });
             });
         }
@@ -497,11 +428,7 @@
         function renderTable() {
             tableBody.innerHTML = '';
 
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-            const paginatedData = filteredData.slice(startIndex, endIndex);
-
-            if (paginatedData.length === 0) {
+            if (filteredData.length === 0) {
                 showNoRecords();
                 return;
             }
@@ -509,8 +436,7 @@
             noRecords.style.display = 'none';
             document.querySelector('.table-container').style.display = 'block';
 
-            paginatedData.forEach((item, index) => {
-                const globalIndex = startIndex + index;
+            filteredData.forEach((item, index) => {
                 const row = document.createElement('tr');
 
                 const columnName = item.ColumnName || item.columnName || 'Unknown';
@@ -522,25 +448,25 @@
                         <strong>${columnName}</strong>
                     </td>
                     <td>
-                    <span>${columnName || 'Empty'}</span>
-                        
+                        <span>${oldValue || 'Empty'}</span>
                     </td>
                     <td>
-                    <span>${newValue || 'Empty'}</span>
+                        <span>${newValue || 'Empty'}</span>
                     </td>
                     <td>
-                        <div class="action-buttons-cell">
-                            <button class="action-btn info" title="View Details" onclick="viewDetails('${columnName}', '${oldValue}', '${newValue}')">
-                                <i class="fas fa-info"></i>
-                            </button>
-                        </div>
-                    </td>
+                    <div class="action-buttons-cell">
+                <button class="action-btn reject" onclick="rejectChange(${item.MemberID || item.memberId || 'null'}, '${columnName}', '${newValue}')">
+                        Reject
+                    </button>
+                    <button class="action-btn approve" onclick="approveChange(${item.MemberID || item.memberId || 'null'}, '${columnName}', '${newValue}')">
+                        Approve
+                    </button>
+                    </div>
+                  </td>
                 `;
 
                 tableBody.appendChild(row);
             });
-
-            updatePaginationInfo();
         }
 
         // Filter data
@@ -562,47 +488,18 @@
                 sortData();
             }
 
-            currentPage = 1;
             renderTable();
-            renderPagination();
-        }
-
-        // Render pagination
-        function renderPagination() {
-            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-
-            if (totalPages <= 1) {
-                document.querySelector('.pagination-container').style.display = 'none';
-                return;
-            }
-
-            document.querySelector('.pagination-container').style.display = 'flex';
-
-            prevPage.disabled = currentPage === 1;
-            nextPage.disabled = currentPage === totalPages;
-
-            // Update current page number
-            currentPageNumber.textContent = currentPage;
-        }
-
-        function updatePaginationInfo() {
-            const startItem = (currentPage - 1) * rowsPerPage + 1;
-            const endItem = Math.min(currentPage * rowsPerPage, filteredData.length);
-            paginationInfo.textContent = `Showing ${startItem}-${endItem} of ${filteredData.length} entries`;
         }
 
         // Show no records message
         function showNoRecords() {
             noRecords.style.display = 'flex';
             document.querySelector('.table-container').style.display = 'none';
-            document.querySelector('.pagination-container').style.display = 'none';
         }
 
         // Event listeners
         searchInput.addEventListener('input', debounce(filterData, 300));
         resetFilters.addEventListener('click', resetAllFilters);
-        prevPage.addEventListener('click', goToPrevPage);
-        nextPage.addEventListener('click', goToNextPage);
 
         // Debounce function for search
         function debounce(func, wait) {
@@ -625,40 +522,63 @@
             });
 
             filteredData = [...historyData];
-            currentPage = 1;
             renderTable();
-            renderPagination();
-        }
-
-        // Go to previous page
-        function goToPrevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderTable();
-                renderPagination();
-            }
-        }
-
-        // Go to next page
-        function goToNextPage() {
-            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderTable();
-                renderPagination();
-            }
         }
 
         // Initialize the page
         initPage();
     });
 
-    // Global functions
-    function goBack() {
-        window.history.back();
+  
+
+    async function rejectChange(memberId, columnName, newValue) {
+        const requestData = {
+            MemberID: parseInt(memberId),  
+            ColumnName: columnName,
+            NewValue: newValue,
+            Flag: "Rejected"
+           
+        };
+
+        await processChange(requestData);
     }
 
-    function viewDetails(columnName, oldValue, newValue) {
-        alert(`Column: ${columnName}\n\nOld Value: ${oldValue || 'Empty'}\nNew Value: ${newValue || 'Empty'}`);
+    async function approveChange(memberId, columnName, newValue) {
+        const requestData = {
+            MemberID: parseInt(memberId),  
+            ColumnName: columnName,
+            NewValue: newValue,
+            Flag: "Approved"
+            
+        };
+
+        await processChange(requestData);
     }
+
+    async function processChange(data) {
+        try {
+            const response = await fetch('/Admin/ApprovedChanges', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            if (result.status === "Success") {
+                alert(result.message);
+                window.location.reload();
+            } else {
+                alert(`Error: ${result.message}`);
+            }
+        } catch (error) {
+            console.error("API Error:", error);
+            alert("Failed to process request");
+        }
+    }
+
+    function goBack() {
+         window.history.back();
+     }
 </script>

@@ -14,5 +14,6 @@
         public const string AddMember = "MstMember/UpsertMember";
         public const string GetAllMember = "MstMember_Edit/GetAllEditedMembers";
         public const string GetMemberById = "MstMember_Edit/GetEditedMemberChangesByMemId";
+        public const string ApprovedData = "MstMember_Edit/ApprovedByAdminOfMemberRecords";
     }
 }
