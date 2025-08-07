@@ -1,0 +1,558 @@
+﻿@model List<BVFG_Web.Models.AdminModel.MstMember_Edit>
+@{
+    ViewData["Title"] = "All Members";
+    ViewData["SubTitle"] = "All Members";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="members-container">
+    <div class="members-header">
+        <h2 class="page-title">All Members</h2>
+        <div class="members-actions">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search members...">
+            </div>
+            <button class="btn btn-primary" id="addMemberBtn">
+                <i class="fas fa-user-plus"></i> Add Member
+            </button>
+        </div>
+    </div>
+
+    <div class="filters-container">
+        <div class="filter-group">
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter">
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+        <button class="btn btn-secondary" id="resetFilters">
+            <i class="fas fa-redo"></i> Reset
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="members-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                    <th>DOB</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="membersTableBody">
+                <!-- Data will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="no-records" id="noRecords">
+        <i class="fas fa-info-circle"></i>
+        <p>@(ViewBag.ErrorMessage ?? "Data not found")</p>
+    </div>
+
+    <div class="pagination-container">
+        <div class="pagination-info" id="paginationInfo"></div>
+        <div class="pagination-controls">
+            <button class="btn btn-secondary" id="prevPage" disabled>
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <div class="page-numbers" id="pageNumbers"></div>
+            <button class="btn btn-secondary" id="nextPage">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Members Container */
+    .members-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        padding: 30px;
+        margin-top: 20px;
+    }
+
+    .members-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .members-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    /* Search Box */
+    .search-box {
+        position: relative;
+        min-width: 250px;
+    }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+            .search-box input:focus {
+                border-color: #00BCD4;
+                box-shadow: 0 0 0 3px rgba(0,188,212,0.1);
+                outline: none;
+            }
+
+    /* Filters */
+    .filters-container {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .filter-group label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+    /* Table Styles */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .members-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .members-table th {
+            background-color: #f8fafc;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .members-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .members-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-inactive {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .action-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .action-btn:hover {
+            background-color: #f1f5f9;
+        }
+
+        .action-btn.edit {
+            color: #00BCD4;
+        }
+
+        .action-btn.delete {
+            color: #ff4757;
+        }
+
+        .action-btn.view {
+            color: #4CAF50;
+        }
+
+    /* No Records */
+    .no-records {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        text-align: center;
+    }
+
+        .no-records i {
+            font-size: 48px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .no-records p {
+            color: #666;
+            font-size: 16px;
+        }
+
+    /* Pagination */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .pagination-info {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .page-numbers {
+        display: flex;
+        gap: 5px;
+    }
+
+    .page-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: 1px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .page-btn:hover {
+            background-color: #f1f5f9;
+        }
+
+        .page-btn.active {
+            background-color: #00BCD4;
+            color: white;
+            border-color: #00BCD4;
+        }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .members-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .members-actions {
+            width: 100%;
+        }
+
+        .search-box {
+            flex-grow: 1;
+        }
+
+        .pagination-container {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .members-container {
+            padding: 20px 15px;
+        }
+
+        .filters-container {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .filter-group {
+            width: 100%;
+        }
+
+            .filter-group select {
+                width: 100%;
+            }
+
+        .members-table th,
+        .members-table td {
+            padding: 8px 10px;
+            font-size: 14px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get data from server-side model
+        const membersData = @Html.Raw(Json.Serialize(Model ?? new List<BVFG_Web.Models.AdminModel.MstMember_Edit>()));
+
+        // DOM elements
+        const tableBody = document.getElementById('membersTableBody');
+        const noRecords = document.getElementById('noRecords');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const resetFilters = document.getElementById('resetFilters');
+        const prevPage = document.getElementById('prevPage');
+        const nextPage = document.getElementById('nextPage');
+        const pageNumbers = document.getElementById('pageNumbers');
+        const paginationInfo = document.getElementById('paginationInfo');
+        const addMemberBtn = document.getElementById('addMemberBtn');
+
+        // Pagination variables
+        let currentPage = 1;
+        const rowsPerPage = 5; // Changed to show 5 records per page
+        let filteredData = [...membersData];
+
+        // Initialize the table
+        function initTable() {
+            if (membersData && membersData.length > 0) {
+                renderTable();
+                renderPagination();
+            } else {
+                updateNoRecords();
+            }
+        }
+
+        // Render table rows
+        function renderTable() {
+            tableBody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const paginatedData = filteredData.slice(startIndex, endIndex);
+
+            if (paginatedData.length === 0) {
+                noRecords.style.display = 'flex';
+                return;
+            }
+
+            noRecords.style.display = 'none';
+
+            paginatedData.forEach(member => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${member.memberID || member.MemberID || 'N/A'}</td>
+                    <td>${member.name || member.Name || 'N/A'}</td>
+                    <td>${member.mobile1 || member.Mobile1 || 'N/A'}</td>
+                    <td>${member.email1 || member.Email1 || 'N/A'}</td>
+                    <td>${formatDate(member.dob || member.DOB)}</td>
+                    <td><span class="status-badge ${(member.status || member.Status) ? 'status-active' : 'status-inactive'}">
+                        ${(member.status || member.Status) ? 'Active' : 'Inactive'}
+                    </span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" title="View" onclick="viewMember(${member.memberID || member.MemberID})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn delete" title="Delete" onclick="deleteMember(${member.memberID || member.MemberID})">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+
+        // Render pagination
+        function renderPagination() {
+            pageNumbers.innerHTML = '';
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+
+            if (totalPages <= 1) {
+                document.querySelector('.pagination-container').style.display = 'none';
+                return;
+            }
+
+            document.querySelector('.pagination-container').style.display = 'flex';
+
+            // Previous button
+            prevPage.disabled = currentPage === 1;
+
+            // Current page number
+            const currentPageSpan = document.createElement('span');
+            currentPageSpan.textContent = currentPage;
+            pageNumbers.appendChild(currentPageSpan);
+
+            // Next button
+            nextPage.disabled = currentPage === totalPages;
+
+            // Pagination info
+            const startItem = (currentPage - 1) * rowsPerPage + 1;
+            const endItem = Math.min(currentPage * rowsPerPage, filteredData.length);
+            paginationInfo.textContent = `Showing ${startItem}-${endItem} of ${filteredData.length} members`;
+        }
+
+        // Update no records message
+        function updateNoRecords() {
+            noRecords.style.display = 'flex';
+            document.querySelector('.pagination-container').style.display = 'none';
+        }
+
+        // Filter data
+        function filterData() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const statusValue = statusFilter.value;
+
+            filteredData = membersData.filter(member => {
+                // Search filter - handle both lowercase and uppercase property names
+                const name = (member.name || member.Name || '').toLowerCase();
+                const mobile = (member.mobile1 || member.Mobile1 || '').toString();
+                const email = (member.email1 || member.Email1 || '').toLowerCase();
+                const id = (member.memberID || member.MemberID || '').toString();
+
+                const matchesSearch =
+                    name.includes(searchTerm) ||
+                    mobile.includes(searchTerm) ||
+                    email.includes(searchTerm) ||
+                    id.includes(searchTerm);
+
+                // Status filter
+                const memberStatus = member.status || member.Status;
+                const matchesStatus =
+                    statusValue === 'all' ||
+                    (statusValue === 'active' && memberStatus) ||
+                    (statusValue === 'inactive' && !memberStatus);
+
+                return matchesSearch && matchesStatus;
+            });
+
+            currentPage = 1;
+            renderTable();
+            renderPagination();
+
+            if (filteredData.length === 0) {
+                updateNoRecords();
+            }
+        }
+
+        // Event listeners
+        if (membersData && membersData.length > 0) {
+            searchInput.addEventListener('input', filterData);
+            statusFilter.addEventListener('change', filterData);
+
+            resetFilters.addEventListener('click', function() {
+                searchInput.value = '';
+                statusFilter.value = 'all';
+                filterData();
+            });
+
+            prevPage.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                    renderPagination();
+                }
+            });
+
+            nextPage.addEventListener('click', function() {
+                const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                    renderPagination();
+                }
+            });
+        }
+
+        addMemberBtn.addEventListener('click', function() {
+            window.location.href = '/Admin/AddMember';
+        });
+
+        // Initialize the table
+        initTable();
+    });
+
+    // Action functions - implement according to your routing
+    function viewMember(id) {
+        window.location.href = `/Admin/GetMemberById/${id}`;
+    }
+
+    function deleteMember(id) {
+        if (confirm('Are you sure you want to delete this member?')) {
+            // Implement actual delete functionality
+            // You can make an AJAX call here to delete the member
+            //window.location.href = `/Admin/DeleteMember/${id}`;
+        }
+    }
+</script>
