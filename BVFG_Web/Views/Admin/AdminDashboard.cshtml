@@ -1,0 +1,184 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["SubTitle"] = "Overview";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Main Content -->
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Add New Item
+            </button>
+            <button class="btn btn-secondary">
+                <i class="fas fa-download"></i>
+                Export Data
+            </button>
+            <button class="btn btn-secondary">
+                <i class="fas fa-filter"></i>
+                Filter
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card blue">
+                <div class="stat-header">
+                    <span class="stat-title">Total Users</span>
+                    <div class="stat-icon blue">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-value">1,245</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +12.5% from last month
+                </div>
+            </div>
+
+            <div class="stat-card green">
+                <div class="stat-header">
+                    <span class="stat-title">Total Orders</span>
+                    <div class="stat-icon green">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                </div>
+                <div class="stat-value">856</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +8.2% from last month
+                </div>
+            </div>
+
+            <div class="stat-card orange">
+                <div class="stat-header">
+                    <span class="stat-title">Revenue</span>
+                    <div class="stat-icon orange">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="stat-value">₹45,280</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-down"></i>
+                    -3.1% from last month
+                </div>
+            </div>
+
+            <div class="stat-card purple">
+                <div class="stat-header">
+                    <span class="stat-title">Products</span>
+                    <div class="stat-icon purple">
+                        <i class="fas fa-box"></i>
+                    </div>
+                </div>
+                <div class="stat-value">234</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +15.3% from last month
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Chart Section -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">Sales Analytics</h3>
+                </div>
+                <div class="card-content">
+                    <div class="chart-placeholder">
+                        <div>
+                            <i class="fas fa-chart-line" style="font-size: 48px; margin-bottom: 10px; display: block;"></i>
+                            Charts will be integrated here<br>
+                            <small>Use Chart.js or any charting library</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">Recent Activities</h3>
+                </div>
+                <div class="card-content">
+                    <div class="activity-item">
+                        <div class="activity-avatar">JD</div>
+                        <div class="activity-content">
+                            <div class="activity-title">New user registered</div>
+                            <div class="activity-time">2 minutes ago</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-avatar">SM</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Order #1234 completed</div>
+                            <div class="activity-time">15 minutes ago</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-avatar">RK</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Product updated</div>
+                            <div class="activity-time">1 hour ago</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-avatar">AP</div>
+                        <div class="activity-content">
+                            <div class="activity-title">New review received</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-avatar">MG</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Payment processed</div>
+                            <div class="activity-time">3 hours ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click animation to stat cards
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+
+        // Auto-refresh stats (simulation)
+        setInterval(function() {
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach(value => {
+                const currentValue = parseInt(value.textContent.replace(/[^\d]/g, ''));
+                const change = Math.floor(Math.random() * 10) - 5; // Random change -5 to +5
+                const newValue = Math.max(0, currentValue + change);
+
+                if (value.textContent.includes('₹')) {
+                    value.textContent = '₹' + newValue.toLocaleString();
+                } else {
+                    value.textContent = newValue.toLocaleString();
+                }
+            });
+        }, 30000); // Update every 30 seconds
+    });
+</script>

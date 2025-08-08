@@ -1,3 +1,5 @@
+using BVFG_Web.Services.AdminService;
+
 namespace BVFG_Web
 {
     public class Program
@@ -8,6 +10,14 @@ namespace BVFG_Web
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // session timeout
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
             var app = builder.Build();
 
@@ -21,7 +31,7 @@ namespace BVFG_Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseSession();
             app.UseRouting();
 
             app.UseAuthorization();
