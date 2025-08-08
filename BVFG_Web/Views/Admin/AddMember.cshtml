@@ -12,8 +12,8 @@
 }
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i> @TempData["ErrorMessage"]
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
@@ -33,11 +33,17 @@
                 </div>
                 <div class="form-group">
                     <label for="Address">Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-map-marker-alt"></i>
                     <input id="Address" name="Address" rows="2"></input>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="City">City</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-map-marker-alt"></i>
                     <input type="text" id="City" name="City">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="DOB">Date of Birth</label>
@@ -51,7 +57,7 @@
                     <i class="fas fa-phone-alt"></i> Contact Information
                 </h3>
                 <div class="form-group">
-                    <label for="Mobile1">Mobile 1 <span class="required">*</span></label>
+                    <label for="Mobile1">Mobile 1 <span class="required" style="font-size:12px;">* Mobile 1 can not duplicate</span></label>
                     <div class="input-with-icon">
                         <i class="fas fa-mobile-alt"></i>
                         <input type="tel" id="Mobile1" name="Mobile1" required>
@@ -122,7 +128,10 @@
                 </div>
                 <div class="form-group">
                     <label for="CompAddress">Company Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-map-marker-alt"></i>
                     <input id="CompAddress" name="CompAddress" rows="2"></input>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="CompCity">Company City</label>
@@ -153,12 +162,14 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         padding: 30px;
         margin-top: 20px;
+        max-width: 100%;
+        overflow-x: hidden;
     }
 
     .form-title {
         font-size: 24px;
         color: #333;
-        margin-bottom: 30px;
+        margin: 0 0 30px 0;
         padding-bottom: 15px;
         border-bottom: 1px solid #e2e8f0;
         display: flex;
@@ -189,7 +200,7 @@
     .section-title {
         font-size: 18px;
         color: #333;
-        margin-bottom: 20px;
+        margin: 0 0 20px 0;
         display: flex;
         align-items: center;
     }
@@ -222,16 +233,20 @@
     .form-group textarea {
         width: 100%;
         padding: 12px 15px;
-        padding-left: 35px;
         border: 1px solid #e2e8f0;
         border-radius: 6px;
         font-size: 14px;
         transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .input-with-icon input {
+        padding-left: 40px;
     }
 
     .form-group textarea {
         min-height: 80px;
-        padding-left: 15px;
+        resize: vertical;
     }
 
         .form-group input:focus,
@@ -254,6 +269,7 @@
             transform: translateY(-50%);
             color: #666;
             font-size: 16px;
+            z-index: 2;
         }
 
     /* Date Input */
@@ -268,37 +284,214 @@
         justify-content: flex-end;
         padding-top: 20px;
         border-top: 1px solid #e2e8f0;
+        flex-wrap: wrap;
     }
 
+    /* Button Styles */
+    .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-primary {
+        background-color: #00BCD4;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background-color: #00ACC1;
+        }
+
+        .btn-primary:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    /* Alert Styles */
+    .alert {
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    .btn-close {
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+        .btn-close:hover {
+            opacity: 1;
+        }
+
     /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .form-container
+
+    {
+        padding: 25px 20px;
+    }
+
+    .form-grid {
+        gap: 20px;
+    }
+
+    }
+
     @@media (max-width: 768px) {
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
+        .form-container
 
-        .form-actions {
-            flex-direction: column;
-        }
+    {
+        padding: 20px 15px;
+        margin-top: 15px;
+    }
 
-        .btn {
-            width: 100%;
-        }
+    .form-title {
+        font-size: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .form-section {
+        padding: 15px;
+    }
+
+    .section-title {
+        font-size: 16px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
     }
 
     @@media (max-width: 480px) {
-        .form-container {
-            padding: 20px 15px;
+        .form-container
+
+    {
+        padding: 15px 10px;
+        border-radius: 8px;
+    }
+
+    .form-title {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .form-section {
+        padding: 12px;
+    }
+
+    .section-title {
+        font-size: 15px;
+        margin-bottom: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 12px;
+            font-size: 13px;
         }
 
-        .form-section {
-            padding: 15px;
-        }
+    .input-with-icon input {
+        padding-left: 35px;
+    }
+
+    .input-with-icon i {
+        left: 10px;
+        font-size: 14px;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        font-size: 13px;
+    }
+
+    }
+
+    @@media (max-width: 360px) {
+        .form-container
+
+    {
+        padding: 10px 8px;
+    }
+
+    .form-grid {
+        gap: 10px;
+    }
+
+    .form-section {
+        padding: 10px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 8px 10px;
+    }
+
+    .input-with-icon input {
+        padding-left: 30px;
+    }
+
     }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Auto-close alert after 5 seconds
+        
         const alert = document.querySelector('.alert');
         if (alert) {
             setTimeout(() => {
@@ -306,57 +499,59 @@
                 setTimeout(() => alert.remove(), 150);
             }, 5000);
         }
-
-        // Update form submission to use AJAX
         const form = document.getElementById('addMemberForm');
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
 
-            try {
-                const formData = new FormData(form);
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
+        form.addEventListener('submit', function(e) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
 
-                if (response.redirected) {
-                    window.location.href = response.url;
-                } else {
-                    const result = await response.json();
-                    if (result.success) {
-                        showSuccessMessage(result.message);
-                        form.reset();
-                    } else {
-                        alert(result.message || 'Failed to save member');
-                    }
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while saving');
-            }
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            submitBtn.disabled = true;
+
         });
 
         function showSuccessMessage(message) {
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert alert-success alert-dismissible fade show';
             alertDiv.innerHTML = `
-                <i class="fas fa-check-circle me-2"></i> ${message}
-                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+                <div>
+                    <i class="fas fa-check-circle me-2"></i> ${message}
+                </div>
+                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close" onclick="this.parentElement.remove()">&times;</button>
             `;
             document.querySelector('.form-container').prepend(alertDiv);
 
             setTimeout(() => {
-                alertDiv.classList.add('fade');
-                setTimeout(() => alertDiv.remove(), 150);
-            }, 5000);
+                if (alertDiv.parentNode) {
+                    alertDiv.classList.add('fade');
+                    setTimeout(() => alertDiv.remove(), 150);
+                }
+            }, 4000);
         }
 
-        // Reset button functionality
         document.getElementById('resetBtn').addEventListener('click', function() {
-            form.reset();
+            if (confirm('Are you sure you want to reset all fields?')) {
+                form.reset();
+            }
+        });
+
+        const phoneInputs = document.querySelectorAll('input[type="tel"]');
+        phoneInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                // Remove non-numeric characters except +, -, (), space
+                this.value = this.value.replace(/[^0-9+\-\(\)\s]/g, '');
+            });
+        });
+
+        const emailInputs = document.querySelectorAll('input[type="email"]');
+        emailInputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value && !this.checkValidity()) {
+                    this.style.borderColor = '#ff4757';
+                } else {
+                    this.style.borderColor = '#e2e8f0';
+                }
+            });
         });
     });
 </script>

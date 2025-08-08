@@ -79,6 +79,8 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         padding: 30px;
         margin-top: 20px;
+        max-width: 100%;
+        overflow-x: hidden;
     }
 
     .members-header {
@@ -90,16 +92,24 @@
         gap: 15px;
     }
 
+    .page-title {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
     .members-actions {
         display: flex;
         gap: 15px;
         align-items: center;
+        flex-wrap: wrap;
     }
 
     /* Search Box */
     .search-box {
         position: relative;
         min-width: 250px;
+        flex: 1;
+        max-width: 350px;
     }
 
         .search-box i {
@@ -131,17 +141,20 @@
         gap: 15px;
         margin-bottom: 20px;
         flex-wrap: wrap;
+        align-items: center;
     }
 
     .filter-group {
         display: flex;
         align-items: center;
         gap: 8px;
+        flex-wrap: wrap;
     }
 
         .filter-group label {
             font-size: 14px;
             color: #555;
+            white-space: nowrap;
         }
 
         .filter-group select {
@@ -149,17 +162,20 @@
             border: 1px solid #e2e8f0;
             border-radius: 6px;
             font-size: 14px;
-            min-width: 150px;
+            min-width: 120px;
         }
 
     /* Table Styles */
     .table-responsive {
         overflow-x: auto;
+        margin: 0 -15px;
+        padding: 0 15px;
     }
 
     .members-table {
         width: 100%;
         border-collapse: collapse;
+        min-width: 700px;
     }
 
         .members-table th {
@@ -169,12 +185,14 @@
             font-weight: 600;
             color: #333;
             border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
         }
 
         .members-table td {
             padding: 12px 15px;
             border-bottom: 1px solid #e2e8f0;
             vertical-align: middle;
+            word-break: break-word;
         }
 
         .members-table tr:hover {
@@ -188,6 +206,7 @@
         border-radius: 12px;
         font-size: 12px;
         font-weight: 500;
+        white-space: nowrap;
     }
 
     .status-active {
@@ -204,6 +223,7 @@
     .action-buttons {
         display: flex;
         gap: 8px;
+        justify-content: center;
     }
 
     .action-btn {
@@ -217,6 +237,7 @@
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;
+        flex-shrink: 0;
     }
 
         .action-btn:hover {
@@ -269,12 +290,15 @@
     .pagination-info {
         color: #666;
         font-size: 14px;
+        order: 1;
     }
 
     .pagination-controls {
         display: flex;
         align-items: center;
         gap: 10px;
+        order: 2;
+        flex-wrap: wrap;
     }
 
     .page-numbers {
@@ -305,50 +329,263 @@
             border-color: #00BCD4;
         }
 
-    /* Responsive Design */
-    @@media (max-width: 768px) {
-        .members-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .members-actions {
-            width: 100%;
-        }
-
-        .search-box {
-            flex-grow: 1;
-        }
-
-        .pagination-container {
-            flex-direction: column;
-            align-items: center;
-        }
+    /* Button Styles */
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
     }
 
-    @@media (max-width: 480px) {
-        .members-container {
-            padding: 20px 15px;
+    .btn-primary {
+        background-color: #00BCD4;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background-color: #00ACC1;
         }
 
-        .filters-container {
-            flex-direction: column;
-            align-items: flex-start;
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
         }
 
-        .filter-group {
-            width: 100%;
+        .btn-secondary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
-            .filter-group select {
-                width: 100%;
-            }
+    @@media (max-width: 1024px) {
+        .members-container
+
+    {
+        padding: 25px 20px;
+    }
+
+    .search-box {
+        min-width: 200px;
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .members-container
+
+    {
+        padding: 20px 15px;
+        margin-top: 15px;
+    }
+
+    .members-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .page-title {
+        text-align: center;
+        font-size: 1.3rem;
+    }
+
+    .members-actions {
+        justify-content: center;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .search-box {
+        min-width: 100%;
+        max-width: none;
+    }
+
+    .filters-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .filter-group {
+        justify-content: space-between;
+    }
+
+        .filter-group select {
+            min-width: 150px;
+            flex: 1;
+        }
+
+    .table-responsive {
+        margin: 0 -15px;
+    }
+
+    .members-table {
+        min-width: 600px;
+    }
 
         .members-table th,
         .members-table td {
-            padding: 8px 10px;
-            font-size: 14px;
+            padding: 10px 8px;
+            font-size: 13px;
         }
+
+    .pagination-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pagination-info {
+        order: 2;
+        text-align: center;
+    }
+
+    .pagination-controls {
+        order: 1;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    }
+
+    @@media (max-width: 480px) {
+        .members-container
+
+    {
+        padding: 15px 10px;
+        border-radius: 8px;
+    }
+
+    .page-title {
+        font-size: 1.2rem;
+    }
+
+    .search-box input {
+        padding: 8px 12px 8px 35px;
+        font-size: 13px;
+    }
+
+    .filters-container {
+        gap: 10px;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+
+        .filter-group label {
+            font-size: 13px;
+        }
+
+        .filter-group select {
+            min-width: 100%;
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+
+    .members-table {
+        min-width: 550px;
+    }
+
+        .members-table th,
+        .members-table td {
+            padding: 8px 6px;
+            font-size: 12px;
+        }
+
+    .action-btn {
+        width: 26px;
+        height: 26px;
+    }
+
+        .action-btn i {
+            font-size: 12px;
+        }
+
+    .status-badge {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+
+    .btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+        .btn i {
+            font-size: 12px;
+        }
+
+    .pagination-controls {
+        gap: 5px;
+    }
+
+    .page-btn {
+        width: 30px;
+        height: 30px;
+    }
+
+    .no-records i {
+        font-size: 36px;
+    }
+
+    .no-records p {
+        font-size: 14px;
+    }
+
+    }
+
+    @@media (max-width: 360px) {
+        .members-container
+
+    {
+        margin-top: 10px;
+        padding: 12px 8px;
+    }
+
+    .members-header {
+        gap: 10px;
+    }
+
+    .members-actions {
+        gap: 8px;
+    }
+
+    .btn {
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+
+        .btn span {
+            display: none;
+        }
+
+    .pagination-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .members-table {
+        min-width: 500px;
+    }
+
     }
 </style>
 

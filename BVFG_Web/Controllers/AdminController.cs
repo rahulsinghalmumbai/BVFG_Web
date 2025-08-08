@@ -67,7 +67,7 @@ namespace BVFG_Web.Controllers
             return RedirectToAction("Login", "Admin");
         }
         [HttpPost]
-        public async Task<IActionResult> AddMember([FromBody] Admin member)
+        public async Task<IActionResult> AddMember(Admin member)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (userIdStr != null)
@@ -79,11 +79,15 @@ namespace BVFG_Web.Controllers
                 }
                 member.CreatedBy = Convert.ToInt32(userIdStr);
                 member.UpdatedBy = Convert.ToInt32(userIdStr);
-                member.DOB = DateTime.ParseExact("2025-08-08", "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                DateTime dob = DateTime.ParseExact("2025-08-08", "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                string isoDob = dob.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+                member.DOB = dob;
+                member.MemberID = 0;
 
                 var response = await _adminService.AddMember(member);
                 if (response != null && response.Status == "Success")
                 {
+                    
                     TempData["SuccessMessage"] = "Member added successfully!";
                     return RedirectToAction("AddMember");
                 }
