@@ -3,9 +3,9 @@
     public class ApiEndpoints
     {
         //local
-        public const string BaseApiUrl = "http://172.23.176.1:5151/api/";
+         //public const string BaseApiUrl = "http://192.168.1.18:5151/api/";
         //produnction
-        //public const string BaseApiUrl = "http://195.250.31.98:2030/api/";
+        public const string BaseApiUrl = "http://195.250.31.98:2030/api/";
 
     }
     public static class Endpoints
