@@ -342,7 +342,7 @@
                 color: #f44336;
             }
 
-        /* Charts and Tables Section */
+        /* Charts and Tables Section */    
         .content-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -601,10 +601,12 @@
                 <i class="fas fa-users"></i>
                 <span class="menu-text">Member For Approval</span>
             </a>
-            <a href="#" class="menu-item">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="menu-text">Orders</span>
+            <a asp-controller="Admin" asp-action="SendWhatsapp"
+               class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "SendWhatsapp" ? "active" : "")">
+                <i class="fab fa-whatsapp"></i>
+                <span class="menu-text">Send Whatsapp</span>
             </a>
+
             <a href="#" class="menu-item">
                 <i class="fas fa-chart-bar"></i>
                 <span class="menu-text">Analytics</span>
