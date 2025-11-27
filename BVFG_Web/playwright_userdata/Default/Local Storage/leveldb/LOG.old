@@ -1,0 +1,6 @@
+2025/11/27-16:09:26.815 292c Reusing MANIFEST D:\Project\BVFG_Web\BVFG_Web\playwright_userdata\Default\Local Storage\leveldb/MANIFEST-000001
+2025/11/27-16:09:26.831 292c Recovering log #50
+2025/11/27-16:09:26.836 292c Reusing old log D:\Project\BVFG_Web\BVFG_Web\playwright_userdata\Default\Local Storage\leveldb/000050.log 
+2025/11/27-16:10:26.859 48cc Level-0 table #55: started
+2025/11/27-16:10:26.865 48cc Level-0 table #55: 16892 bytes OK
+2025/11/27-16:10:26.868 48cc Delete type=0 #50
