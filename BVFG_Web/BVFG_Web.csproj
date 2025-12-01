@@ -1,22 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="33.1.0" />
-    <PackageReference Include="EcoCore" Version="7.2.0.17039" />
-    <PackageReference Include="EPPlus" Version="4.5.3.3" />
-    <PackageReference Include="Microsoft.Playwright" Version="1.56.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CsvHelper" Version="33.1.0" />
+		<PackageReference Include="EcoCore" Version="7.2.0.17039" />
+		<PackageReference Include="EPPlus" Version="4.5.3.3" />
+		<PackageReference Include="Microsoft.Playwright" Version="1.56.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\Image\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\Image\" />
+	</ItemGroup>
+
+	<!-- ✅ ADD PLAYWRIGHT BROWSER INSTALLATION TARGET -->
+	<Target Name="PlaywrightInstall" AfterTargets="Build">
+		<Exec Command="pwsh -Command &quot;try { &amp; playwright install; } catch { Write-Host 'Playwright installation failed, continuing...' }&quot;" ContinueOnError="true" />
+		<Exec Command="playwright install" ContinueOnError="true" />
+	</Target>
+
+	<Target Name="EnsurePlaywrightOnPublish" BeforeTargets="Publish">
+		<Exec Command="pwsh -Command &quot;try { &amp; playwright install chromium; } catch { Write-Host 'Playwright chromium installation failed, continuing...' }&quot;" ContinueOnError="true" />
+	</Target>
 
 </Project>

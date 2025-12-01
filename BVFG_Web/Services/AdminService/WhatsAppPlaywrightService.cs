@@ -12,11 +12,33 @@ namespace BVFG_Web.Services.AdminService
         private bool _initialized = false;
         private bool _isInitializing = false;
         private readonly SemaphoreSlim _initLock = new SemaphoreSlim(1, 1);
+        private readonly bool _isProduction;
+        private readonly bool _isLocal;
+        private readonly string _sessionId;
 
-        public WhatsAppPlaywrightService()
+        public WhatsAppPlaywrightService(IWebHostEnvironment env)
         {
-            _userDataDir = Path.Combine(Directory.GetCurrentDirectory(), "playwright_userdata");
-            Directory.CreateDirectory(_userDataDir);
+            // ✅ UNIQUE SESSION DIRECTORY WITH TIMESTAMP TO AVOID CONFLICTS
+            _sessionId = $"{Guid.NewGuid():N}_{DateTime.Now:yyyyMMddHHmmss}";
+            _userDataDir = Path.Combine(Directory.GetCurrentDirectory(), "playwright_temp", _sessionId);
+
+            // ✅ CREATE DIRECTORY WITH PROPER PERMISSIONS HANDLING
+            try
+            {
+                if (!Directory.Exists(_userDataDir))
+                {
+                    Directory.CreateDirectory(_userDataDir);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Fallback to temp directory if main directory fails
+                _userDataDir = Path.Combine(Path.GetTempPath(), "whatsapp_sessions", _sessionId);
+                Directory.CreateDirectory(_userDataDir);
+            }
+
+            _isProduction = env.IsProduction();
+            _isLocal = env.IsDevelopment() || env.EnvironmentName == "Local";
         }
 
         public async Task InitializeAsync(bool headful = true)
@@ -30,49 +52,94 @@ namespace BVFG_Web.Services.AdminService
                 if (_initialized) return;
                 _isInitializing = true;
 
+                Console.WriteLine($"🚀 Starting WhatsApp initialization for session: {_sessionId}");
+
+                // ✅ FIRST CLEANUP ANY EXISTING RESOURCES
+                await ForceCleanup();
+
+                // ✅ SIMPLIFIED BROWSER PATH RESOLUTION
+                string browserPath = FindBrowserPath();
+                if (string.IsNullOrEmpty(browserPath) && _isProduction)
+                {
+                    throw new Exception("❌ Playwright browser not found. Please ensure browsers are installed.");
+                }
+
                 _playwright = await Playwright.CreateAsync();
                 var chromium = _playwright.Chromium;
 
-                // Use existing context if available
-                if (_context == null)
+                // ✅ BROWSER LAUNCH WITH FIXED ARGUMENTS FOR HOSTING ENVIRONMENT
+                var launchOptions = new BrowserTypeLaunchPersistentContextOptions
                 {
-                    _context = await chromium.LaunchPersistentContextAsync(_userDataDir, new BrowserTypeLaunchPersistentContextOptions
-                    {
-                        Headless = !headful,
-                        Args = new[] {
-                            "--no-sandbox",
-                            "--disable-setuid-sandbox",
-                            "--disable-web-security",
-                            "--disable-features=site-per-process"
-                        },
-                        ViewportSize = new ViewportSize { Width = 1280, Height = 720 },
-                        IgnoreHTTPSErrors = true
-                    });
+                    Headless = !headful,
+                    Args = new[] {
+                        "--no-sandbox",
+                        "--disable-setuid-sandbox",
+                        "--disable-web-security",
+                        "--disable-features=site-per-process",
+                        "--disable-dev-shm-usage",
+                        "--disable-gpu",
+                        "--no-first-run",
+                        "--no-default-browser-check",
+                        "--disable-default-apps",
+                        "--disable-background-timer-throttling",
+                        "--disable-renderer-backgrounding",
+                        "--disable-backgrounding-occluded-windows",
+                        "--remote-debugging-port=0",
+                        "--disable-component-extensions-with-background-pages",
+                        "--disable-background-networking",
+                        "--disable-sync",
+                        "--disable-translate",
+                        "--disable-extensions",
+                        "--disable-component-update",
+                        "--disable-domain-reliability",
+                        "--disable-client-side-phishing-detection",
+                        "--disable-hang-monitor",
+                        "--disable-crash-reporter",
+                        "--disable-breakpad",
+                        "--noerrdialogs",
+                        "--disable-logging"
+                    },
+                    ViewportSize = new ViewportSize { Width = 1280, Height = 720 },
+                    IgnoreHTTPSErrors = true,
+                    Timeout = 60000
+                };
+
+                // ✅ SET BROWSER PATH ONLY IF FOUND
+                if (!string.IsNullOrEmpty(browserPath))
+                {
+                    launchOptions.ExecutablePath = browserPath;
                 }
 
-                // Use existing page or create new one
-                if (_page == null || _page.IsClosed)
-                {
-                    _page = _context.Pages.Count > 0 ? _context.Pages[0] : await _context.NewPageAsync();
-                }
+                Console.WriteLine("🔄 Launching browser with unique session...");
+                _context = await chromium.LaunchPersistentContextAsync(_userDataDir, launchOptions);
+                Console.WriteLine("✅ Browser launched successfully");
 
-                // Only navigate if not already on WhatsApp
-                var currentUrl = _page.Url;
-                if (!currentUrl.Contains("web.whatsapp.com"))
+                // ✅ SIMPLE PAGE CREATION
+                Console.WriteLine("🔄 Creating new page...");
+                _page = await _context.NewPageAsync();
+                Console.WriteLine("✅ Page created successfully");
+
+                // ✅ SIMPLE NAVIGATION
+                Console.WriteLine("🔄 Navigating to WhatsApp Web...");
+                await _page.GotoAsync("https://web.whatsapp.com", new PageGotoOptions
                 {
-                    await _page.GotoAsync("https://web.whatsapp.com", new PageGotoOptions
-                    {
-                        WaitUntil = WaitUntilState.DOMContentLoaded,
-                        Timeout = 30000
-                    });
-                }
+                    WaitUntil = WaitUntilState.DOMContentLoaded,
+                    Timeout = 60000
+                });
+                Console.WriteLine("✅ Navigation completed");
+
+                // ✅ WAIT FOR STABILITY
+                await _page.WaitForTimeoutAsync(2000);
 
                 _initialized = true;
                 _isInitializing = false;
+                Console.WriteLine($"✅ WhatsApp initialization completed for session: {_sessionId}");
             }
             catch (Exception ex)
             {
                 _isInitializing = false;
+                Console.WriteLine($"❌ WhatsApp initialization failed: {ex.Message}");
+                await ForceCleanup();
                 throw new Exception($"WhatsApp initialization failed: {ex.Message}", ex);
             }
             finally
@@ -81,16 +148,140 @@ namespace BVFG_Web.Services.AdminService
             }
         }
 
+        private async Task ForceCleanup()
+        {
+            try
+            {
+                // ✅ CLEANUP IN PROPER ORDER
+                if (_page != null)
+                {
+                    try
+                    {
+                        if (!_page.IsClosed)
+                            await _page.CloseAsync();
+                    }
+                    catch { }
+                    _page = null;
+                }
+
+                if (_context != null)
+                {
+                    try
+                    {
+                        await _context.CloseAsync();
+                    }
+                    catch { }
+                    _context = null;
+                }
+
+                if (_playwright != null)
+                {
+                    try
+                    {
+                        _playwright.Dispose();
+                    }
+                    catch { }
+                    _playwright = null;
+                }
+
+                // ✅ DELETE SESSION DIRECTORY WITH RETRY LOGIC
+                await DeleteDirectoryWithRetry(_userDataDir);
+
+                // ✅ ADD SMALL DELAY TO ENSURE CLEANUP COMPLETES
+                await Task.Delay(500);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Force cleanup error: {ex.Message}");
+            }
+            finally
+            {
+                _initialized = false;
+                _isInitializing = false;
+            }
+        }
+
+        private async Task DeleteDirectoryWithRetry(string directoryPath, int maxRetries = 3)
+        {
+            if (!Directory.Exists(directoryPath)) return;
+
+            for (int i = 0; i < maxRetries; i++)
+            {
+                try
+                {
+                    Directory.Delete(directoryPath, true);
+                    Console.WriteLine($"✅ Successfully deleted directory: {directoryPath}");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"⚠️ Attempt {i + 1} to delete directory failed: {ex.Message}");
+                    if (i < maxRetries - 1)
+                    {
+                        await Task.Delay(1000 * (i + 1));
+                    }
+                }
+            }
+
+            Console.WriteLine($"❌ Failed to delete directory after {maxRetries} attempts: {directoryPath}");
+        }
+
+        private string FindBrowserPath()
+        {
+            // ✅ SIMPLIFIED BROWSER PATH FINDING
+            if (_isProduction)
+            {
+                var productionPaths = new[]
+                {
+                    @"C:\inetpub\wwwroot\BVGF_Web\ms-playwright\chromium-1200\chrome-win\chrome.exe",
+                    @"C:\inetpub\wwwroot\BVGF_Web\ms-playwright\chromium-1194\chrome-win\chrome.exe",
+                    Path.Combine(Directory.GetCurrentDirectory(), "ms-playwright", "chromium-1200", "chrome-win", "chrome.exe"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "ms-playwright", "chromium-1194", "chrome-win", "chrome.exe")
+                };
+
+                foreach (var path in productionPaths)
+                {
+                    if (File.Exists(path))
+                    {
+                        Console.WriteLine($"✅ Found browser at: {path}");
+                        return path;
+                    }
+                }
+
+                // Fallback search
+                var searchDir = Path.Combine(Directory.GetCurrentDirectory(), "ms-playwright");
+                if (Directory.Exists(searchDir))
+                {
+                    var files = Directory.GetFiles(searchDir, "chrome.exe", SearchOption.AllDirectories);
+                    if (files.Length > 0)
+                    {
+                        Console.WriteLine($"✅ Found browser via search: {files[0]}");
+                        return files[0];
+                    }
+                }
+            }
+
+            Console.WriteLine("✅ Using Playwright auto-detect for browser");
+            return null;
+        }
+
         public async Task<string> GetQrImageBase64Async()
         {
             if (!_initialized && !_isInitializing)
                 await InitializeAsync(headful: true);
 
-            // Wait for page to be ready
-            await _page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+            // ✅ CHECK PAGE STATE
+            if (_page == null || _page.IsClosed)
+            {
+                await InitializeAsync(headful: true);
+            }
 
             try
             {
+                // Wait for page to be ready
+                await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+                await _page.WaitForTimeoutAsync(1000);
+
                 // Check if already logged in
                 var isLoggedIn = await _page.QuerySelectorAsync("div[role='textbox']") != null
                                || await _page.QuerySelectorAsync("._1Flk2") != null
@@ -102,7 +293,10 @@ namespace BVFG_Web.Services.AdminService
                     return null;
                 }
             }
-            catch { }
+            catch
+            {
+                // Continue to QR code
+            }
 
             // Wait for QR code to appear
             try
@@ -115,12 +309,19 @@ namespace BVFG_Web.Services.AdminService
             catch (TimeoutException)
             {
                 // If QR code not found, take screenshot of the whole page
-                var screenshot = await _page.ScreenshotAsync(new PageScreenshotOptions
+                try
                 {
-                    Type = ScreenshotType.Png,
-                    FullPage = true
-                });
-                return Convert.ToBase64String(screenshot);
+                    var screenshot = await _page.ScreenshotAsync(new PageScreenshotOptions
+                    {
+                        Type = ScreenshotType.Png,
+                        FullPage = true
+                    });
+                    return Convert.ToBase64String(screenshot);
+                }
+                catch
+                {
+                    return null;
+                }
             }
 
             var qrSelectorCandidates = new[] {
@@ -143,25 +344,42 @@ namespace BVFG_Web.Services.AdminService
 
             if (qrElement == null)
             {
-                var screenshot = await _page.ScreenshotAsync(new PageScreenshotOptions
+                try
                 {
-                    Type = ScreenshotType.Png,
-                    FullPage = true
-                });
-                return Convert.ToBase64String(screenshot);
+                    var screenshot = await _page.ScreenshotAsync(new PageScreenshotOptions
+                    {
+                        Type = ScreenshotType.Png,
+                        FullPage = true
+                    });
+                    return Convert.ToBase64String(screenshot);
+                }
+                catch
+                {
+                    return null;
+                }
             }
 
-            var buffer = await qrElement.ScreenshotAsync(new ElementHandleScreenshotOptions
+            try
             {
-                Type = ScreenshotType.Png
-            });
-            return Convert.ToBase64String(buffer);
+                var buffer = await qrElement.ScreenshotAsync(new ElementHandleScreenshotOptions
+                {
+                    Type = ScreenshotType.Png
+                });
+                return Convert.ToBase64String(buffer);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<bool> IsReadyAsync()
         {
             if (!_initialized && !_isInitializing)
                 await InitializeAsync();
+
+            if (_page == null || _page.IsClosed)
+                return false;
 
             try
             {
@@ -181,6 +399,9 @@ namespace BVFG_Web.Services.AdminService
         {
             if (!_initialized && !_isInitializing)
                 await InitializeAsync();
+
+            if (_page == null || _page.IsClosed)
+                return "Browser not available";
 
             try
             {
@@ -222,6 +443,9 @@ namespace BVFG_Web.Services.AdminService
             if (!_initialized && !_isInitializing)
                 await InitializeAsync();
 
+            if (_page == null || _page.IsClosed)
+                throw new Exception("WhatsApp is not initialized properly");
+
             var num = System.Text.RegularExpressions.Regex.Replace(phoneWithCountry, @"[^\d]", "");
             var encoded = HttpUtility.UrlEncode(message ?? "");
             var url = $"https://web.whatsapp.com/send?phone={num}&text={encoded}";
@@ -252,10 +476,10 @@ namespace BVFG_Web.Services.AdminService
                 await _page.WaitForTimeoutAsync(5000);
 
                 var closeButtons = new[] {
-            "button[aria-label='Close']",
-            "button[data-testid='x-viewer']",
-            "div[role='button'][aria-label='Close']"
-        };
+                    "button[aria-label='Close']",
+                    "button[data-testid='x-viewer']",
+                    "div[role='button'][aria-label='Close']"
+                };
 
                 foreach (var closeBtn in closeButtons)
                 {
@@ -283,10 +507,10 @@ namespace BVFG_Web.Services.AdminService
                 if (!invalidNumberDetected)
                 {
                     var invalidSelectors = new[] {
-                "text=Phone number shared via url is invalid",
-                "div[data-testid='invalid-number']",
-                "div[role='dialog']:has-text('invalid')"
-            };
+                        "text=Phone number shared via url is invalid",
+                        "div[data-testid='invalid-number']",
+                        "div[role='dialog']:has-text('invalid')"
+                    };
 
                     foreach (var selector in invalidSelectors)
                     {
@@ -322,12 +546,12 @@ namespace BVFG_Web.Services.AdminService
                 }
 
                 var messageInputSelectors = new[] {
-            "div[contenteditable='true'][data-tab='10']",
-            "div[contenteditable='true'][data-tab='9']",
-            "div[contenteditable='true'][data-tab]",
-            "[contenteditable='true']",
-            "div[title='Type a message']"
-        };
+                    "div[contenteditable='true'][data-tab='10']",
+                    "div[contenteditable='true'][data-tab='9']",
+                    "div[contenteditable='true'][data-tab]",
+                    "[contenteditable='true']",
+                    "div[title='Type a message']"
+                };
 
                 IElementHandle messageInput = null;
                 foreach (var selector in messageInputSelectors)
@@ -372,10 +596,10 @@ namespace BVFG_Web.Services.AdminService
 
                 var sent = false;
                 var sentSelectors = new[] {
-            "span[data-testid='msg-dblcheck']",
-            "span[data-icon='msg-dblcheck']",
-            "div[data-testid='msg-check']"
-        };
+                    "span[data-testid='msg-dblcheck']",
+                    "span[data-icon='msg-dblcheck']",
+                    "div[data-testid='msg-check']"
+                };
 
                 foreach (var selector in sentSelectors)
                 {
@@ -405,7 +629,7 @@ namespace BVFG_Web.Services.AdminService
                 if (ex.Message.Contains("not registered on WhatsApp"))
                 {
                     throw;
-                } 
+                }
 
                 if (ex.Message.Contains("Navigation") || ex.Message.Contains("Timeout"))
                 {
@@ -449,23 +673,7 @@ namespace BVFG_Web.Services.AdminService
 
         public async Task DisposeAsyncCore()
         {
-            if (_page != null)
-            {
-                try { await _page.CloseAsync(); } catch { }
-                _page = null;
-            }
-            if (_context != null)
-            {
-                try { await _context.CloseAsync(); } catch { }
-                _context = null;
-            }
-            if (_playwright != null)
-            {
-                try { _playwright.Dispose(); } catch { }
-                _playwright = null;
-            }
-            _initialized = false;
-            _isInitializing = false;
+            await ForceCleanup();
         }
 
         public async ValueTask DisposeAsync()

@@ -176,6 +176,7 @@
                         stopStatusCheck();
                     } else if (result.qrCode) {
                         $('#qrImage').attr('src', 'data:image/png;base64,' + result.qrCode);
+                        
                     }
                 }
             } catch (error) { console.error('Status check failed:', error); }
