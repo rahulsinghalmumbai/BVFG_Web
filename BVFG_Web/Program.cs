@@ -1,4 +1,5 @@
-using BVFG_Web.Services.AdminService;
+﻿using BVFG_Web.Services.AdminService;
+using OfficeOpenXml;
 
 namespace BVFG_Web
 {
@@ -6,26 +7,44 @@ namespace BVFG_Web
     {
         public static void Main(string[] args)
         {
+
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            builder.Services.AddControllers();
+
             builder.Services.AddControllersWithViews();
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddDistributedMemoryCache();
+
+            builder.Services.AddSingleton<WhatsAppPlaywrightService>();
+
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
             builder.Services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(30); // session timeout
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
 
+            builder.Services.Configure<IISServerOptions>(options =>
+            {
+                options.MaxRequestBodySize = 104857600;
+            });
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -33,12 +52,18 @@ namespace BVFG_Web
             app.UseStaticFiles();
             app.UseSession();
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Admin}/{action=Login}/{id?}");
+
+            app.MapControllers();
+
+            app.MapFallback(async context =>
+            {
+                context.Response.Redirect("/Home/Error");
+            });
 
             app.Run();
         }

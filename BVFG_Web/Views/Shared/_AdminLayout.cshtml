@@ -6,7 +6,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] - BVFG Admin</title>
+    <title>@ViewData["Title"] - ReachConnect Admin</title>
+    <link rel="icon" href="~/Image/logo.jpeg" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    <style>
         * {
@@ -339,7 +342,7 @@
                 color: #f44336;
             }
 
-        /* Charts and Tables Section */
+        /* Charts and Tables Section */    
         .content-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -582,7 +585,7 @@
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>BVFG Admin</h3>
+            <h3>ReachConnect Admin</h3>
         </div>
 
         <div class="sidebar-menu">
@@ -598,10 +601,12 @@
                 <i class="fas fa-users"></i>
                 <span class="menu-text">Member For Approval</span>
             </a>
-            <a href="#" class="menu-item">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="menu-text">Orders</span>
+            <a asp-controller="Admin" asp-action="SendWhatsapp"
+               class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "SendWhatsapp" ? "active" : "")">
+                <i class="fab fa-whatsapp"></i>
+                <span class="menu-text">Send Whatsapp</span>
             </a>
+
             <a href="#" class="menu-item">
                 <i class="fas fa-chart-bar"></i>
                 <span class="menu-text">Analytics</span>

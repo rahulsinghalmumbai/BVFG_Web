@@ -1,0 +1,19 @@
+2025/11/28-16:10:25.542 2d94 Reusing MANIFEST D:\Project\BVFG_Web\BVFG_Web\playwright_userdata\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/11/28-16:10:25.547 2d94 Recovering log #18036
+2025/11/28-16:10:25.556 2d94 Reusing old log D:\Project\BVFG_Web\BVFG_Web\playwright_userdata\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/018036.log 
+2025/11/28-16:10:27.487 2794 Level-0 table #18044: started
+2025/11/28-16:10:27.500 2794 Level-0 table #18044: 194433 bytes OK
+2025/11/28-16:10:27.502 2794 Delete type=0 #18036
+2025/11/28-16:10:27.503 2d94 Manual compaction at level-0 from ' #\x16\x00\x00\x00' @ 72057594037927935 : 1 .. ' $\x16\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/11/28-16:10:27.870 368c Compacting 1@1 + 4@2 files
+2025/11/28-16:10:28.002 368c Generated table #18045@1: 51850 keys, 2213824 bytes
+2025/11/28-16:10:28.064 368c Generated table #18046@1: 6496 keys, 2159504 bytes
+2025/11/28-16:10:28.175 368c Generated table #18047@1: 44562 keys, 2214011 bytes
+2025/11/28-16:10:28.269 368c Generated table #18048@1: 42323 keys, 922801 bytes
+2025/11/28-16:10:28.269 368c Compacted 1@1 + 4@2 files => 7510140 bytes
+2025/11/28-16:10:28.275 368c compacted to: files[ 0 0 4 0 0 0 0 ]
+2025/11/28-16:10:28.276 368c Delete type=2 #18038
+2025/11/28-16:10:28.276 368c Delete type=2 #18039
+2025/11/28-16:10:28.276 368c Delete type=2 #18040
+2025/11/28-16:10:28.276 368c Delete type=2 #18041
+2025/11/28-16:10:28.277 368c Delete type=2 #18044
